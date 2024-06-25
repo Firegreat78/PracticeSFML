@@ -1,5 +1,8 @@
 build
+objs
 out
+.git
+.github
 .cache
 .idea
 .vs
