@@ -36,7 +36,6 @@ randomGenerator<int64_t, 1 << 12> rng(0, INT64_MAX);
 int main()
 {
     srand(time(nullptr));
-    Enemy::enemies.reserve(100);
     
     mainApp();
 }
@@ -50,8 +49,10 @@ void testfunc()
 Path genPath()
 {
     Path p(0, 0);
-    p.append(util::PathDirection::RIGHT, 2);
-    p.append(util::PathDirection::DOWN, 3);
+    p.append(util::PathDirection::RIGHT, 1);
+    p.append(util::PathDirection::DOWN, 2);
+    p.append(util::PathDirection::RIGHT, 6);
+    p.append(util::PathDirection::DOWN, 4);
     p.append(util::PathDirection::RIGHT, 5);
     p.append(util::PathDirection::UP, 3);
     p.append(util::PathDirection::RIGHT, 2);
@@ -62,15 +63,29 @@ Path genPath()
     p.append(util::PathDirection::UP, 1);
     p.append(util::PathDirection::RIGHT, 5);
     p.append(util::PathDirection::UP, 9);
+    p.append(util::PathDirection::RIGHT, 8);
+    p.append(util::PathDirection::DOWN, 2);
+    p.append(util::PathDirection::LEFT, 6);
+    p.append(util::PathDirection::DOWN, 10);
+    p.append(util::PathDirection::LEFT, 13);
+    p.append(util::PathDirection::UP, 7);
+    p.append(util::PathDirection::RIGHT, 7);
+    p.print();
     return p;
 }
 
 void mainApp()
 {
-    sf::RenderWindow window(sf::VideoMode(WIN_WIDTH, WIN_HEIGHT), "Tower Defense", sf::Style::Close);
+    sf::RenderWindow window({WIN_WIDTH, WIN_HEIGHT}, "Tower Defense", sf::Style::Close);
     Grid grid;
-    grid.appendPath(genPath(grid));
+    grid.appendPath(genPath());
+    Path& p = grid.getPath(0);
     window.setFramerateLimit(FPS);
+    sf::RectangleShape testRect;
+    testRect.setFillColor(COLOR_GREEN);
+    testRect.setSize({300, 300});
+    testRect.setPosition({0, 0});
+    testRect.setRotation(45);
     while (window.isOpen())
     {
         for (auto event = sf::Event{}; window.pollEvent(event);)
@@ -86,6 +101,7 @@ void mainApp()
                 break;
 
                 case sf::Event::MouseButtonPressed:
+                grid.updateSelected(event.mouseButton.x, event.mouseButton.y);
                 break;
 
                 case sf::Event::KeyPressed:
@@ -93,15 +109,15 @@ void mainApp()
                 {
                     using sf::Keyboard;
 
-                    case Keyboard::Num1:
-                    std::cout << 'F' << '!' << '\n';
+                    case Keyboard::Num1: // Archer
+                    grid.placeTowerInSelected(Tile::ARCHER_TOWER);
                     break;
-                    case Keyboard::Num2:
-
+                    case Keyboard::Num2: // Bomb
+                    grid.placeTowerInSelected(Tile::BOMB_TOWER);
                     break;
 
                     case Keyboard::Num3:
-
+                    grid.spawnEnemy(0);
                     break;
                     default:
                     break;
@@ -113,8 +129,9 @@ void mainApp()
                 break;
             }
         }
-        window.clear(COLOR_GRAY);
+        window.clear(COLOR_WHITE);
         grid.draw(window);
+        grid.tick();
         window.display();
     }
 }

@@ -8,16 +8,28 @@
 #include "constants.hpp"
 #include "tile.hpp"
 #include "path.hpp"
+#include "tower.hpp"
 #include "utility.hpp"
+#include "enemy.hpp"
+
+#include <map>
 
 
 class Grid // singleton class, описание игрового мира
 {
+    int lives = START_LIVES;
     Tile tiles[TILES_PER_X][TILES_PER_Y];
     std::vector<Path> pathlist;
-    sf::Vector2i hovered = VEC2_NULL;
-public:
+    std::map<int, ArcherTower> archerTowers;
+    //std::map<int, BombTower> bombTowers;
 
+    ArcherTower& getArcherTower(const sf::Vector2i tilePos)
+    {
+        const int tileIndex = util::convertTileInfo(tilePos);
+        return archerTowers[tileIndex];
+    }
+
+public:
     inline Tile& getTile(const sf::Vector2i tilePos)
     {
         return tiles[tilePos.x][tilePos.y];
@@ -81,38 +93,64 @@ public:
         Tile::hovered = tilePos;
     }
 
-    void draw(sf::RenderWindow& window) const
+    void updateSelected(int mouseX, int mouseY) // при нажатии ЛКМ
+    {
+        if (!isMouseInside(mouseX, mouseY)) return; // вне сетки
+
+        const sf::Vector2i tilePos = util::getTilePos(mouseX, mouseY);
+        if (tilePos == Tile::selected) return; // выбрали ту же ячейку
+
+        changeTileBrightness(tilePos, SELECT_RGB_INCREMENT);
+        if (Tile::selected != VEC2_NULL) changeTileBrightness(Tile::selected, -SELECT_RGB_INCREMENT);
+        Tile::selected = tilePos;
+    }
+
+    void draw(sf::RenderWindow& window)
     {
         for (int i = 0; i < TILES_PER_X; i++)
         {
             for (int j = 0; j < TILES_PER_Y; j++)
             {
                 const Tile& tile = getTile(i, j);
-                window.draw(tile.rect);
+                window.draw(tile.rect); 
             }
         }
+
+        for (Path& p : pathlist)
+        {
+            p.drawEnemies(window);
+        }
+    }
+
+    void tick() // вызывается каждый кадр для логики игрового мира
+    {
+        for (Path& p : pathlist) p.tick(); // движутся враги
+        
+        towersShoot(); // стреляют башни
     }
 
     void appendPath(const Path& path) // новый объект
     {
         const auto& v = path.getDirectionVector();
         const size_t vec_size = v.size();
-        if (vec_size == 0) return;
+        assert(vec_size != 0);
 
         sf::Vector2i pos = path.begin();
         Tile* currentTile = &getTile(pos);
         currentTile->changeType(Tile::TileType::PATH_BEGIN);
-        pos += util::getDelta(v[0]);
+        pos += util::getDelta<int>(v[0]);
 
         for (size_t i = 1; i < vec_size; i++)
         {
             currentTile = &getTile(pos);
             currentTile->changeType(Tile::TileType::PATH);
-            pos += util::getDelta(v[i]);
+            pos += util::getDelta<int>(v[i]);
         }
         
         currentTile = &getTile(pos);
         currentTile->changeType(Tile::TileType::PATH_END);
+
+        pathlist.push_back(path);
     }
 
     const std::vector<Path>& getPathList() const
@@ -120,9 +158,60 @@ public:
         return this->pathlist;
     }
 
+    Path& getPath(int pathIndex)
+    {
+        return pathlist.at(pathIndex);
+    }
+
     void spawnEnemy(const int pathIndex)
     {
-        
+        Path& path = pathlist.at(pathIndex);
+        path.spawnEnemy();
+    }
+
+
+    void placeTowerInSelected(Tile::TileType towerType)
+    {
+        Tile& tile = getTile(Tile::selected);
+        if (Tile::isPath(tile.type)) return;
+
+        const int tileIndex = util::convertTileInfo(Tile::selected);
+
+        tile.changeType(towerType);
+        tile.changeColor(SELECT_RGB_INCREMENT);
+
+        if (Tile::hovered == Tile::selected)
+        tile.changeColor(HOVER_RGB_INCREMENT);
+
+        if (towerType == Tile::TileType::ARCHER_TOWER) archerTowers[tileIndex] = ArcherTower(Tile::selected);
+        // if (towerType == Tile::TileType::BOMB_TOWER) bombTowers[tileIndex] = BombTower(Tile::selected);
+    }
+
+    std::vector<Enemy*> getAllEnemies()
+    {
+        std::vector<Enemy*> enemies;
+
+        for (auto& path : pathlist)
+        {
+            std::vector<Enemy>& v = path.getEnemies();
+            enemies.reserve(enemies.capacity() + v.size());
+            for (auto& enemy : v) enemies.push_back(&enemy);
+        }
+        return enemies;
+    }
+
+    void towersShoot()
+    {
+        std::vector<Enemy*> mapEnemies = getAllEnemies();
+        for (auto& t : archerTowers)
+        {
+            ArcherTower& tower = t.second;
+            tower.tick();
+            if (!tower.canAttack()) continue;
+
+            Enemy* target = tower.getTarget(mapEnemies);
+            if (target) tower.attack(target);
+        }
     }
 };
 

@@ -26,6 +26,7 @@ struct Tile // клетка на поле
     };
 
     static sf::Vector2i hovered;
+    static sf::Vector2i selected;
 
     TileType type;
     sf::RectangleShape rect;
@@ -45,6 +46,21 @@ struct Tile // клетка на поле
         }       
     }
 
+    static inline bool isTower(TileType type)
+    {
+        return 
+        type == BOMB_TOWER || 
+        type == ARCHER_TOWER;
+    }
+
+    static inline bool isPath(TileType type)
+    {
+        return 
+        type == PATH_BEGIN ||
+        type == PATH ||
+        type == PATH_END;
+    }
+
     inline Tile() 
     {
         this->type = Tile::TileType::UNINITIALIZED;
@@ -55,7 +71,7 @@ struct Tile // клетка на поле
         this->type = type;
         sf::RectangleShape rect(sf::Vector2f(TILESIDELEN, TILESIDELEN));
 
-        rect.setPosition(TILESIDELEN * tilePos.x, TILESIDELEN * tilePos.y + 1);
+        rect.setPosition(TILESIDELEN * tilePos.x, TILESIDELEN * tilePos.y);
         rect.setFillColor(Tile::getColorByType(type));
         rect.setOutlineColor(COLOR_BLACK);
         rect.setOutlineThickness(TILE_BORDER_THICKNESS);
@@ -86,8 +102,19 @@ struct Tile // клетка на поле
         changeColor(getColorByType(type));
         
     }
+
+    bool isTower()
+    {
+        return Tile::isTower(this->type);
+    }
+
+    bool isPath()
+    {
+        return Tile::isPath(this->type);
+    }
 };
 
 sf::Vector2i Tile::hovered = VEC2_NULL;
+sf::Vector2i Tile::selected = VEC2_NULL;
 
 #endif // TILE_H

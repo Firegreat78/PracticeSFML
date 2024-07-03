@@ -2,50 +2,72 @@
 #define ENEMY_H
 
 #include "constants.hpp"
-#include "path.hpp"
-#include "grid.hpp"
 
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 
 
-class Enemy
+struct Enemy
 {
-    public:
-    static std::vector<Enemy> enemies;
-    private:
-    const Path* path = nullptr; // указатель на путь, по которому движется враг
-    sf::RectangleShape hp_bar;
+    sf::RectangleShape mainRect; // тело врага
+    sf::RectangleShape hp_bar_green; // часть
+    sf::RectangleShape hp_bar_red; // полная
 
     int hp, max_hp; // очки здоровья
-    float speed; // пикселей/сек
+    double speed; // пикселей/сек
     int lives_drain; // сколько жизней уйдёт если враг дойдёт до конца пути
-    int path_index; // индекс пути в векторе путей
-    int tile = 0; // клетка пути по счёту
-    float tile_percentage = 0.0f; // на сколько % текущая клетка завершена
+    double path_completed = 0.0; // на сколько путь завершен [0; 1)
 
-    public:
-    static void moveAll() // вызывается каждый кадр
+    Enemy(int hp, double speed, int lives_drain)
     {
-        for (auto& enemy : enemies) enemy.move();
-    }
-
-    Enemy(int path_index, int hp, float speed, int lives_drain)
-    {
-        enemies.push_back(*this);
-
         this->hp = this->max_hp = hp;
         this->speed = speed;
         this->lives_drain = lives_drain;
-        this->path_index = path_index;
-    }
-    private:
-    void move() // вызывается каждый кадр
-    {
 
+        mainRect.setFillColor(COLOR_BLUE);
+        hp_bar_green.setFillColor(COLOR_GREEN);
+        hp_bar_red.setFillColor(COLOR_RED);
+
+        mainRect.setSize({ENEMY_SIZE, ENEMY_SIZE});
+        hp_bar_green.setSize({ENEMY_SIZE, HP_BAR_THICKNESS});
+        hp_bar_red.setSize({ENEMY_SIZE, HP_BAR_THICKNESS});
+    }
+
+    // center берём из Path::getPositionForRatio
+    void updateRects(sf::Vector2f center)
+    {
+        const sf::Vector2f rectPos = center - sf::Vector2f(ENEMY_SIZE/2, ENEMY_SIZE/2);
+        mainRect.setPosition(rectPos);
+        
+        const sf::Vector2f barPos = rectPos - sf::Vector2f(0, HP_BAR_OFFSETY);
+        hp_bar_green.setPosition(barPos);
+        hp_bar_red.setPosition(barPos);
+
+        const sf::Vector2f greenSize(ENEMY_SIZE*(((double)hp)/max_hp), HP_BAR_THICKNESS);
+
+        hp_bar_green.setSize(greenSize);
+    }
+
+    void decreaseHP(int amount)
+    {
+        this->hp -= amount;
+        sf::Vector2f newSize(ENEMY_SIZE * ((double)this->hp / this->max_hp), HP_BAR_THICKNESS);
+        if (this->hp <= 0) newSize.x = 0;
+        
+        hp_bar_green.setSize(newSize);
+    }
+
+    void draw(sf::RenderWindow& w)
+    {
+        w.draw(mainRect);
+        w.draw(hp_bar_red);
+        w.draw(hp_bar_green);
+    }
+
+    sf::Vector2f getPos() const
+    {
+        return mainRect.getPosition() + sf::Vector2f(ENEMY_SIZE/2, ENEMY_SIZE/2);
     }
 };
-
-std::vector<Enemy> Enemy::enemies = std::vector<Enemy>();
 
 #endif // ENEMY_H
