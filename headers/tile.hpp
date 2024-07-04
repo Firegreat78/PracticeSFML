@@ -20,8 +20,6 @@ struct Tile // клетка на поле
         PATH_BEGIN, // клетка - часть пути (начало)
         PATH, // клетка - часть пути
         PATH_END, // клетка - часть пути (конец)
-        //OBSTACLE, // препятствие на пути
-        BOMB_TOWER, // башня, бросающая бомбы
         ARCHER_TOWER, // лучники
     };
 
@@ -41,7 +39,6 @@ struct Tile // клетка на поле
             case Tile::TileType::PATH: return PATH_TILE_COLOR;
             case Tile::TileType::PATH_END: return PATHEND_TILE_COLOR;
             //case Tile::TileType::OBSTACLE: return OBSTACLE_TILE_COLOR;
-            case Tile::TileType::BOMB_TOWER: return BOMB_TOWER_TILE_COLOR;
             case Tile::TileType::ARCHER_TOWER: return ARCHER_TOWER_TILE_COLOR;
         }       
     }
@@ -49,7 +46,6 @@ struct Tile // клетка на поле
     static inline bool isTower(TileType type)
     {
         return 
-        type == BOMB_TOWER || 
         type == ARCHER_TOWER;
     }
 

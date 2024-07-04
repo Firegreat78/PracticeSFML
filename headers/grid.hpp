@@ -13,15 +13,14 @@
 #include "enemy.hpp"
 
 #include <map>
+#include <vector>
 
 
 class Grid // singleton class, описание игрового мира
 {
-    int lives = START_LIVES;
-    Tile tiles[TILES_PER_X][TILES_PER_Y];
+    Tile tiles[TILES_PER_X][TILES_PER_Y]; // клетки
     std::vector<Path> pathlist;
     std::map<int, ArcherTower> archerTowers;
-    //std::map<int, BombTower> bombTowers;
 
     ArcherTower& getArcherTower(const sf::Vector2i tilePos)
     {
@@ -116,10 +115,7 @@ public:
             }
         }
 
-        for (Path& p : pathlist)
-        {
-            p.drawEnemies(window);
-        }
+        for (Path& p : pathlist) p.drawEnemies(window);
     }
 
     void tick() // вызывается каждый кадр для логики игрового мира
@@ -129,7 +125,7 @@ public:
         towersShoot(); // стреляют башни
     }
 
-    void appendPath(const Path& path) // новый объект
+    void appendPath(const Path& path)
     {
         const auto& v = path.getDirectionVector();
         const size_t vec_size = v.size();
@@ -170,21 +166,20 @@ public:
     }
 
 
-    void placeTowerInSelected(Tile::TileType towerType)
+    void placeTowerInSelected()
     {
         Tile& tile = getTile(Tile::selected);
-        if (Tile::isPath(tile.type)) return;
+        if (tile.isPath() || tile.isTower()) return;
 
         const int tileIndex = util::convertTileInfo(Tile::selected);
 
-        tile.changeType(towerType);
+        tile.changeType(Tile::TileType::ARCHER_TOWER);
         tile.changeColor(SELECT_RGB_INCREMENT);
 
         if (Tile::hovered == Tile::selected)
         tile.changeColor(HOVER_RGB_INCREMENT);
 
-        if (towerType == Tile::TileType::ARCHER_TOWER) archerTowers[tileIndex] = ArcherTower(Tile::selected);
-        // if (towerType == Tile::TileType::BOMB_TOWER) bombTowers[tileIndex] = BombTower(Tile::selected);
+        archerTowers[tileIndex] = ArcherTower(Tile::selected);
     }
 
     std::vector<Enemy*> getAllEnemies()
@@ -210,8 +205,23 @@ public:
             if (!tower.canAttack()) continue;
 
             Enemy* target = tower.getTarget(mapEnemies);
-            if (target) tower.attack(target);
+            if (target != nullptr) tower.attack(target);
         }
+    }
+
+    void deleteTower()
+    {
+        const int tileIndex = util::convertTileInfo(Tile::selected);
+        archerTowers.erase(tileIndex);
+
+        Tile& tile = getTile(Tile::selected);
+        if (!tile.isTower()) return;
+
+        tile.changeType(Tile::TileType::EMPTY);
+        tile.changeColor(SELECT_RGB_INCREMENT);
+
+        if (Tile::hovered == Tile::selected)
+        tile.changeColor(HOVER_RGB_INCREMENT);
     }
 };
 

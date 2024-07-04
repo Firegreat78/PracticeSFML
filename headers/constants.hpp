@@ -3,8 +3,8 @@
 
 #define FPS 75 // кадров в секунду
 
-#define TILESIDELEN 40 // сторона квадрата клетки поля (пикселей) - чётное целое
-#define TILES_PER_X 40 // количество клеток по горизонтали -> (вправо)
+#define TILESIDELEN 50 // сторона квадрата клетки поля (пикселей) - чётное целое
+#define TILES_PER_X 28 // количество клеток по горизонтали -> (вправо)
 #define TILES_PER_Y 16 // количество клеток по вертикали V (вниз)
 
 #define TILE_BORDER_THICKNESS 1 // толщина границы клеток поля
@@ -13,7 +13,7 @@
 
 
 #define RIGHT_PANEL_SIZE 0
-#define BOTTOM_PANEL_SIZE 250
+#define BOTTOM_PANEL_SIZE 0
 
 #define WIN_WIDTH TILESIDELEN*TILES_PER_X + RIGHT_PANEL_SIZE // размер окна (X)
 #define WIN_HEIGHT TILESIDELEN*TILES_PER_Y + BOTTOM_PANEL_SIZE // размер окна (Y)
@@ -25,8 +25,6 @@
 #define ENEMY_SIZE (TILESIDELEN / 2) // размер ректа врага + длина хп бара
 #define HP_BAR_THICKNESS 7 // пикселей
 #define HP_BAR_OFFSETY (0 + HP_BAR_THICKNESS) // пикселей
-
-#define START_LIVES 100
 
 // некоторые цвета
 #define COLOR_RED sf::Color(255, 0, 0)
@@ -42,8 +40,6 @@
 #define PATH_TILE_COLOR sf::Color(158, 200, 70)
 #define PATHBEGIN_TILE_COLOR sf::Color(11, 220, 81)
 #define PATHEND_TILE_COLOR sf::Color(220, 43, 80)
-#define OBSTACLE_TILE_COLOR sf::Color(220, 165, 5)
-#define ARCHER_TOWER_TILE_COLOR sf::Color(20, 195, 81)
-#define BOMB_TOWER_TILE_COLOR sf::Color(220, 201, 175)
+#define ARCHER_TOWER_TILE_COLOR sf::Color(220, 201, 175)
 
 #endif // CONSTANTS_H

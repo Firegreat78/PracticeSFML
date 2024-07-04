@@ -126,10 +126,7 @@ public:
 
     void drawEnemies(sf::RenderWindow& w)
     {
-        for (Enemy& e : enemies)
-        {
-            e.draw(w);
-        }
+        for (Enemy& e : enemies) e.draw(w);
     }
 
     void tick() // вызывается каждый кадр
@@ -152,42 +149,7 @@ public:
             enemy.updateRects(pixelPos);
         }
 
-        for (auto enemy : toDelete)
-        {
-            enemies.erase(enemy);
-        }
-    }
-
-    void print() const
-    {
-        static const char* const LEFT = "Left";
-        static const char* const RIGHT = "Right";
-        static const char* const DOWN = "Down";
-        static const char* const UP = "Up";
-
-        const size_t size = this->v.size();
-        const char* ptr = nullptr;
-
-        for (uint64_t i = 0; i < size; i++)
-        {
-            switch (v[i])
-            {
-                case util::PathDirection::DOWN: ptr = DOWN;
-                break;
-                case util::PathDirection::UP: ptr = UP;
-                break;
-                case util::PathDirection::LEFT: ptr = LEFT;
-                break;
-                case util::PathDirection::RIGHT: ptr = RIGHT;
-                break;
-            }
-            std::cout << "Direction " << i + 1 << ": " << ptr << '\n';
-        }
-
-        for (double i = 0; i < 1; i += 0.001)
-        {
-            //util::printVector<float>(getPositionForRatio(i)); std::cout << '\n';
-        }
+        for (auto enemy : toDelete) enemies.erase(enemy);
     }
 };
 

@@ -9,41 +9,28 @@
 #include <SFML/Window.hpp>
 #include <iostream>
 #include <cstdlib>
-#include <cmath>
-#include <vector>
-#include <random>
 #include <cassert>
-#include <limits>
 #include <cstdint>
-#include <map>
-#include <ctime>
-#include <chrono>
 
-#include "constants.hpp"
-#include "randomGenerator.hpp"
-#include "path.hpp"
 #include "grid.hpp"
-#include "utility.hpp"
-#include "enemy.hpp"
 
-void testfunc();
-void mainApp();
 Path genPath();
-
-randomGenerator<int64_t, 1 << 12> rng(0, INT64_MAX);
-
+void checkEvent(sf::RenderWindow&, sf::Event&, Grid&);
 
 int main()
 {
-    srand(time(nullptr));
-    
-    mainApp();
-}
-
-void testfunc()
-{
-    getchar();
-    std::chrono::steady_clock a; 
+    sf::RenderWindow window({WIN_WIDTH, WIN_HEIGHT}, "Tower Defense Simulation", sf::Style::Close);
+    Grid grid;
+    grid.appendPath(genPath());
+    window.setFramerateLimit(FPS);
+    while (window.isOpen())
+    {
+        for (auto event = sf::Event{}; window.pollEvent(event);) checkEvent(window, event, grid);
+        window.clear(COLOR_WHITE);
+        grid.draw(window);
+        grid.tick();
+        window.display();
+    }
 }
 
 Path genPath()
@@ -70,68 +57,41 @@ Path genPath()
     p.append(util::PathDirection::LEFT, 13);
     p.append(util::PathDirection::UP, 7);
     p.append(util::PathDirection::RIGHT, 7);
-    p.print();
     return p;
 }
 
-void mainApp()
+void checkEvent(sf::RenderWindow& w, sf::Event& e, Grid& g)
 {
-    sf::RenderWindow window({WIN_WIDTH, WIN_HEIGHT}, "Tower Defense", sf::Style::Close);
-    Grid grid;
-    grid.appendPath(genPath());
-    Path& p = grid.getPath(0);
-    window.setFramerateLimit(FPS);
-    sf::RectangleShape testRect;
-    testRect.setFillColor(COLOR_GREEN);
-    testRect.setSize({300, 300});
-    testRect.setPosition({0, 0});
-    testRect.setRotation(45);
-    while (window.isOpen())
+    switch (e.type)
     {
-        for (auto event = sf::Event{}; window.pollEvent(event);)
+        case sf::Event::Closed:
+        w.close();
+        break;
+        case sf::Event::MouseMoved:
+        g.updateBrightness(e.mouseMove.x, e.mouseMove.y);
+        break;
+        case sf::Event::MouseButtonPressed:
+        g.updateSelected(e.mouseButton.x, e.mouseButton.y);
+        break;
+        case sf::Event::KeyPressed:
+        switch (e.key.code)
         {
-            switch (event.type)
-            {
-                case sf::Event::Closed:
-                window.close();
-                break;
-
-                case sf::Event::MouseMoved:
-                grid.updateBrightness(event.mouseMove.x, event.mouseMove.y);
-                break;
-
-                case sf::Event::MouseButtonPressed:
-                grid.updateSelected(event.mouseButton.x, event.mouseButton.y);
-                break;
-
-                case sf::Event::KeyPressed:
-                switch (event.key.code)
-                {
-                    using sf::Keyboard;
-
-                    case Keyboard::Num1: // Archer
-                    grid.placeTowerInSelected(Tile::ARCHER_TOWER);
-                    break;
-                    case Keyboard::Num2: // Bomb
-                    grid.placeTowerInSelected(Tile::BOMB_TOWER);
-                    break;
-
-                    case Keyboard::Num3:
-                    grid.spawnEnemy(0);
-                    break;
-                    default:
-                    break;
-                }
-
-                break;
-    
-                default: 
-                break;
-            }
+            case sf::Keyboard::Q:
+            g.placeTowerInSelected();
+            break;
+            case sf::Keyboard::E:
+            g.spawnEnemy(0);
+            break;
+            case sf::Keyboard::Backspace:
+            g.deleteTower();
+            break;
+            default:
+            break;
         }
-        window.clear(COLOR_WHITE);
-        grid.draw(window);
-        grid.tick();
-        window.display();
+
+        break;
+        default: 
+        break;
     }
+
 }

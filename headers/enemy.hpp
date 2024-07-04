@@ -15,14 +15,12 @@ struct Enemy
 
     int hp, max_hp; // очки здоровья
     double speed; // пикселей/сек
-    int lives_drain; // сколько жизней уйдёт если враг дойдёт до конца пути
     double path_completed = 0.0; // на сколько путь завершен [0; 1)
 
     Enemy(int hp, double speed, int lives_drain)
     {
         this->hp = this->max_hp = hp;
         this->speed = speed;
-        this->lives_drain = lives_drain;
 
         mainRect.setFillColor(COLOR_BLUE);
         hp_bar_green.setFillColor(COLOR_GREEN);

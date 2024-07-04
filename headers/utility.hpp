@@ -24,26 +24,6 @@ enum AttackType // способ атаки башен
     CLOSE // блишайший к башне
 };
 
-
-void printColor(const sf::Color color)
-{
-    std::cout << "Color<" << (int)color.r << ',' << (int)color.g << ',' << (int)color.b << ',' << (int)color.a << '>';
-}
-
-template <class T>
-void printVector(const sf::Vector2<T> v)
-{
-    std::cout << "Vec2<" << v.x << ',' << v.y << '>';
-}
-
-void printRectangleInfo(const sf::RectangleShape& rect)
-{
-    std::cout << "Rectangle<";
-    printVector(rect.getPosition());
-    printColor(rect.getFillColor());
-    std::cout << '>';
-}
-
 template <class T>
 inline sf::Vector2<T> getDelta(const PathDirection dir)
 {
