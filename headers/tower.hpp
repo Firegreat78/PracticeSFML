@@ -46,8 +46,6 @@ struct ArcherTower
 
     Enemy* getTarget(std::vector<Enemy*>& enemies) const
     {
-        using util::AttackType;
-
         Enemy* first = nullptr;
         float mindist;
         const sf::Vector2f towerPos = util::getTileCenter(tilePos);

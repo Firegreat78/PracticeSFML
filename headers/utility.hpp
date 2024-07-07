@@ -4,8 +4,6 @@
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/Color.hpp>
 
-#include <iostream>
-
 namespace util
 {
 
@@ -15,13 +13,6 @@ enum PathDirection // направление
     RIGHT,
     UP,
     DOWN,
-};
-
-enum AttackType // способ атаки башен
-{
-    FIRST, // ближайший к концу пути
-    LAST, // ближайший к началу пути
-    CLOSE // блишайший к башне
 };
 
 template <class T>

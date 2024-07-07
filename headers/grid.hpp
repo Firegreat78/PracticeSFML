@@ -14,6 +14,7 @@
 
 #include <map>
 #include <vector>
+#include <cassert>
 
 
 class Grid // singleton class, описание игрового мира

@@ -38,7 +38,6 @@ struct Tile // клетка на поле
             case Tile::TileType::PATH_BEGIN: return PATHBEGIN_TILE_COLOR;
             case Tile::TileType::PATH: return PATH_TILE_COLOR;
             case Tile::TileType::PATH_END: return PATHEND_TILE_COLOR;
-            //case Tile::TileType::OBSTACLE: return OBSTACLE_TILE_COLOR;
             case Tile::TileType::ARCHER_TOWER: return ARCHER_TOWER_TILE_COLOR;
         }       
     }

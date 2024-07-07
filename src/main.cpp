@@ -7,8 +7,6 @@
 #include <SFML/Network.hpp>
 #include <SFML/System.hpp>
 #include <SFML/Window.hpp>
-#include <iostream>
-#include <cstdlib>
 #include <cassert>
 #include <cstdint>
 

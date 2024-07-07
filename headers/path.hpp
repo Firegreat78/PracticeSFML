@@ -7,7 +7,6 @@
 
 #include <cinttypes>
 #include <vector>
-#include <iostream>
 
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
@@ -119,7 +118,7 @@ public:
 
     void spawnEnemy()
     {
-        Enemy enemy(100, 100, 1);
+        Enemy enemy(100, 100);
         enemy.updateRects(getPositionForRatio(0));
         enemies.push_back(enemy);
     }
@@ -128,6 +127,7 @@ public:
     {
         for (Enemy& e : enemies) e.draw(w);
     }
+
 
     void tick() // вызывается каждый кадр
     {

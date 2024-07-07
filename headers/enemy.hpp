@@ -17,7 +17,7 @@ struct Enemy
     double speed; // пикселей/сек
     double path_completed = 0.0; // на сколько путь завершен [0; 1)
 
-    Enemy(int hp, double speed, int lives_drain)
+    Enemy(int hp, double speed)
     {
         this->hp = this->max_hp = hp;
         this->speed = speed;
